@@ -48,6 +48,9 @@ const ICON = {
   flag: svg('<path d="M5 21V4"/><path d="M5 4h12l-2.5 4.5L17 13H5"/>'),
   book: svg('<path d="M2.5 5.5h6a3.5 3.5 0 0 1 3.5 3.5v11a3 3 0 0 0-3-3H2.5z"/><path d="M21.5 5.5h-6A3.5 3.5 0 0 0 12 9v11a3 3 0 0 1 3-3h6.5z"/>'),
   timer: svg('<circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 2"/><path d="M9.5 2.5h5"/>'),
+  check: svg('<path d="m5 12.5 4.5 4.5L19 7.5"/>'),
+  x: svg('<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>'),
+  guess: svg('<path d="M9.2 9.2a3 3 0 0 1 5.8 1c0 2-3 2.6-3 4.3"/><circle cx="12" cy="18.2" r=".6" fill="currentColor"/>'),
 };
 
 function setTheme(t, save) {
@@ -67,6 +70,28 @@ function stats(rec) {
   return { n, times, targets, total, target, gap: target - total, avg: total / n, worst: w, over: times[w] - targets[w],
            red: times.filter((t, i) => cat(t, targets[i]) === 'bad').length };
 }
+/* right / wrong / guessed marks; a guess counts as a miss */
+const RES = {
+  right: { icon: () => ICON.check, title: 'Right', tone: 'good', glyph: '\u2713' },
+  wrong: { icon: () => ICON.x, title: 'Wrong', tone: 'bad', glyph: '\u2715' },
+  guess: { icon: () => ICON.guess, title: 'Guessed (counts as a miss)', tone: 'warn', glyph: '?' },
+};
+const NEXT_RES = { undefined: 'right', right: 'wrong', wrong: 'guess', guess: undefined };
+function score(rec) {
+  const c = { right: 0, wrong: 0, guess: 0 };
+  rec.questions.forEach(q => { if (c[q.result] !== undefined) c[q.result]++; });
+  return { ...c, n: rec.questions.length, marked: c.right + c.wrong + c.guess };
+}
+function scoreText(sc) {
+  if (!sc.marked) return 'not marked yet';
+  const bits = [`${sc.right}/${sc.n} right`];
+  if (sc.wrong) bits.push(`${sc.wrong} wrong`);
+  if (sc.guess) bits.push(`${sc.guess} guessed`);
+  if (sc.n > sc.marked) bits.push(`${sc.n - sc.marked} unmarked`);
+  return bits.join(' · ');
+}
+const isMiss = q => q.result === 'wrong' || q.result === 'guess';
+
 /* dashed step line through each question's target */
 function stepPath(xs, ys, half, lo = -Infinity, hi = Infinity) {
   return xs.map((x, k) => `${k ? 'L' : 'M'}${Math.max(lo, x - half)},${ys[k]}H${Math.min(hi, x + half)}`).join('');
@@ -108,7 +133,7 @@ function animateLine(root) {
 let gid = 0;
 /* small chart for the widget's "set done" card */
 function sparkline(el, rec) {
-  const W = el.clientWidth || 260, H = el.clientHeight || 66, qs = rec.questions, n = qs.length, tg = qs.map(q => tgt(rec, q));
+  const box = el.parentElement, W = box.clientWidth || 260, H = box.clientHeight || 66, qs = rec.questions, n = qs.length, tg = qs.map(q => tgt(rec, q));
   const top = Math.max(...qs.map(q => q.sec), ...tg) * 1.15, pad = 6;
   const x = k => n === 1 ? W / 2 : pad + (W - 2 * pad) * k / (n - 1), y = s => pad + (H - 2 * pad) * (1 - s / top);
   const pts = qs.map((q, k) => [x(k), y(q.sec)]), id = 'sg' + (++gid), line = monotone(pts);
@@ -122,10 +147,10 @@ function sparkline(el, rec) {
 }
 
 /* full line chart for the history window */
-function bigChart(box, rec, tip) {
+function bigChart(box, rec, tip, opt = {}) {
   const W = Math.max(320, box.clientWidth), H = Math.max(220, box.clientHeight);
   const qs = rec.questions, n = qs.length, tg = qs.map(q => tgt(rec, q));
-  const L = 50, R = 78, T = rec.sets.length > 1 ? 34 : 18, B = 66;
+  const L = 50, R = 78, T = rec.sets.length > 1 ? 34 : 18, B = 92, anim = opt.animate !== false;
   const maxS = Math.max(...qs.map(q => q.sec), ...tg.map(t => t + TH.redOff + 20));
   const step = maxS > 480 ? 120 : maxS > 260 ? 60 : 30;
   const top = Math.ceil(maxS * 1.1 / step) * step;
@@ -165,10 +190,10 @@ function bigChart(box, rec, tip) {
   const showPills = n <= 18, lvTxt = { Easy: 'E', Medium: 'M', Hard: 'H' };
   qs.forEach((q, k) => {
     const [px, py] = pts[k], d = tg[k] - q.sec, c = cat(q.sec, tg[k]), up = ahead(d);
-    s += `<circle class="pt" data-k="${k}" cx="${px}" cy="${py}" r="6.5" fill="var(--${c})" stroke="var(--card)" stroke-width="3" style="animation:pop .45s ${.25 + k * .045}s both; transform-origin:${px}px ${py}px"/>`;
+    s += `<circle class="pt" data-k="${k}" cx="${px}" cy="${py}" r="6.5" fill="var(--${c})" stroke="var(--card)" stroke-width="3"${anim ? ` style="animation:pop .45s ${.25 + k * .045}s both; transform-origin:${px}px ${py}px"` : ''}/>`;
     if (showPills) {
       const tx = secs(d), w = 10 + tx.length * 6.6, ty = py - 30 < T - 2 ? py + 14 : py - 28;
-      s += `<g style="animation:fadeIn .4s ${.5 + k * .045}s both"><rect x="${px - w / 2}" y="${ty}" width="${w}" height="17" rx="8.5" fill="var(--${up ? 'good' : 'bad'}-soft)"/>
+      s += `<g${anim ? ` style="animation:fadeIn .4s ${.5 + k * .045}s both"` : ''}><rect x="${px - w / 2}" y="${ty}" width="${w}" height="17" rx="8.5" fill="var(--${up ? 'good' : 'bad'}-soft)"/>
         <text x="${px}" y="${ty + 12.5}" text-anchor="middle" font-size="11" font-weight="700" font-family="Bahnschrift" fill="var(--${up ? 'good' : 'bad'}-ink)">${tx}</text></g>`;
     }
     const lv = lvTxt[q.level] || '';
@@ -178,8 +203,15 @@ function bigChart(box, rec, tip) {
       <text x="9" y="11" text-anchor="middle" font-size="10" font-weight="700" fill="var(--lv-${lv}-fg)">${lv}</text></g>`;
     s += `<rect class="hit" data-k="${k}" x="${px - colW / 2}" y="${T}" width="${colW}" height="${base - T + 58}"/>`;
   });
+  qs.forEach((q, k) => {                                          // result badges: click to cycle right, wrong, guessed, unmarked
+    const px = pts[k][0], r = RES[q.result], cy = base + 74;
+    s += `<g class="res" data-k="${k}" transform="translate(${px},${cy})"><title>${r ? r.title : 'Not marked'} (click to change)</title>
+      <circle r="10" fill="${r ? `var(--${r.tone})` : 'var(--card)'}" stroke="${r ? 'var(--card)' : 'var(--line-2)'}" stroke-width="${r ? 2 : 1.5}"${r ? '' : ' stroke-dasharray="3 3"'}/>
+      <text y="4.5" text-anchor="middle" font-size="12" font-weight="800" fill="${r ? '#fff' : 'var(--muted)'}">${r ? r.glyph : ''}</text></g>`;
+  });
   box.innerHTML = `<svg width="${W}" height="${H}">${s}</svg>`;
-  animateLine(box);
+  if (anim) animateLine(box);
+  if (opt.onMark) box.querySelectorAll('.res').forEach(g => g.onclick = () => opt.onMark(+g.dataset.k));
   if (!tip) return;
   const vline = box.querySelector('.vline');
   box.querySelectorAll('.hit').forEach(h => {

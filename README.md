@@ -1,12 +1,16 @@
 # GMAT Timer
 
-A floating, always-on-top timer for timed GMAT practice sets. Pick the sets you are about to do, press **Q** after each question, and it times every question against a target for its type. Every session is saved, and the History window charts it question by question.
+A floating, always-on-top timer for timed GMAT practice sets. Pick the sets you are about to do, press **Q** after each question, and it times every question against a target for its type. When the set ends, mark each question right, wrong or guessed. Every session is saved: the History window charts it question by question and collects every miss in one list, so it doubles as a mistake log.
 
 | Pick sets | Running | Set done |
 |---|---|---|
 | ![Pick sets](docs/screenshots/widget-setup.png) | ![Running](docs/screenshots/widget-running.png) | ![Set done](docs/screenshots/widget-done.png) |
 
 ![History window](docs/screenshots/history.png)
+
+The Misses tab lists every question marked wrong or guessed, across all sessions:
+
+![Misses tab](docs/screenshots/history-misses.png)
 
 Dark mode is black with purple highlights:
 
@@ -29,12 +33,19 @@ Dark mode is black with purple highlights:
 - **F1-style splits.** A row of mini sectors (one per question) is coloured by that question's time. The last three splits show time and `+12s` or `−18s` against target.
 - **Global Q hotkey.** Q works even while another app has focus, for example Edge with a PDF you are writing on. It is active only while a set runs and is not paused.
 - **Pause, Undo Q and End.** Pause blurs the widget behind a Resume card. Undo puts the last split back on the clock. End needs two clicks within 3 seconds.
-- **Set done card.** It shows the total, the gap to target, a sparkline, the average per question, the worst question and the count of 30s+ overruns.
+- **Set done card.**
+  - It shows the total, the gap to target, a sparkline, the average per question, the worst question and the count of 30s+ overruns.
+  - Below that is a row per question with ✓ / ✕ / ? buttons to mark it right, wrong or guessed. A guess counts as a miss, because a lucky right answer is not a skill yet.
+  - Marks save as you tap; tap a button again to clear it.
 - **History window.** It opens by itself when a set finishes.
   - Filter by section, and see tiles for total, vs target, average, worst and 30s+ over.
   - A smooth line chart has a zone for each question (yellow near target, red 30s+ over), a dashed step line of the targets, and `+Ns` / `−Ns` labels.
   - The OG number and difficulty (E, M, H) sit under each point. Hover any point for details.
   - Delete sessions with checkboxes, the trash button or the Delete key, with a confirm dialog. Arrow keys move through sessions.
+  - **Marks.** A Score tile shows something like "7/10, 2 wrong · 1 guessed". Under the chart, a circle for each question shows its mark; click a circle to cycle right, wrong, guessed and unmarked, so you can mark a set later.
+  - **Misses tab (mistake log).** It lists every question marked wrong or guessed, in the current section filter, with counts by question type.
+    - Each row shows the OG number, type, level, set, time and gap to target.
+    - Click one to open its session with that question highlighted.
 - **Light and dark themes.** Light is sky blue; dark is black with purple. The sun/moon button switches both windows at once.
 - **Resizable.** Drag the widget's edge and everything scales. Its position and size are remembered.
 
@@ -122,11 +133,12 @@ Both files live in the `--data` folder.
 - `sets` is in the order you did them.
 - `read` marks the first question of an RC passage.
 - `complete` is false when a set was ended early, or when the window was closed mid-set.
+- `result` is `right`, `wrong` or `guess` once a question is marked; it is missing until then.
 - Sessions saved before type targets existed have no `type` or `target`. They are charted against `pace`.
 
 **`Timer History.csv`** has one row per question, for spreadsheets. It is rebuilt from the JSON on every save, so deleting a session removes it from both. The columns are:
 
-`date, section, set, q in session, OG #, type, level, seconds, target, vs target (+ = gained)`
+`date, section, set, q in session, OG #, type, level, seconds, target, vs target (+ = gained), result`
 
 ## Customize
 

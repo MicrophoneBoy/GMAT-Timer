@@ -27,10 +27,12 @@
 <div class="layout">
   <aside class="card list">
     <div class="list-head">
-      <label class="check" title="Select all"><input type="checkbox" id="all"><span></span></label>
-      <span class="grow">Sessions</span>
+      <div class="tabs" id="tabs"><button data-tab="sessions" class="on">Sessions</button><button data-tab="misses">Misses<span class="cnt" id="missN"></span></button></div>
+      <span class="grow"></span>
+      <label class="check" title="Select all" id="allWrap"><input type="checkbox" id="all"><span></span></label>
       <button class="btn ghost" id="delBtn" disabled></button>
     </div>
+    <div class="miss-sum" id="missSum" hidden></div>
     <div class="items" id="items"></div>
   </aside>
   <main class="detail" id="detail">

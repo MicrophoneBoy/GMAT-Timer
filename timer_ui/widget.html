@@ -77,13 +77,12 @@
     </div>
     <div class="card hero">
       <div class="top"><span class="k" id="doneSub"></span><span class="pill" id="doneGap"></span></div>
-      <div class="big num" id="doneTotal"></div>
-      <svg class="spark" id="spark"></svg>
-      <div class="stats">
-        <div><b id="dAvg"></b><span>avg / Q</span></div>
-        <div><b id="dWorst"></b><span id="dWorstQ">worst</span></div>
-        <div><b id="dRed"></b><span>30s+ over</span></div>
-      </div>
+      <div class="hrow"><div class="big num" id="doneTotal"></div><div class="sparkbox"><svg class="spark" id="spark"></svg></div></div>
+      <div class="minis" id="doneStats"></div>
+    </div>
+    <div class="card marks">
+      <div class="mhead"><span class="k">Marks</span><span class="score" id="score"></span></div>
+      <ol class="mlist" id="mlist"></ol>
     </div>
     <div class="two">
       <button class="btn ghost" id="chartBtn"></button>

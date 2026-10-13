@@ -54,7 +54,7 @@ The Python process calls `SetProcessDpiAwareness(2)` so that window rectangles a
 - `t0`: when the set started.
 - `paused_total` and `paused_at`: time spent paused.
 - `stamps`: the active time at each Q press.
-- `qs`: one entry per question, with `og`, `set`, `level`, `read`, `type` and `target`.
+- `qs`: one entry per question, with `og`, `set`, `level`, `read`, `type` and `target`. The saved record adds `sec` and, once marked, `result`.
 
 The active time is `now − t0 − paused_total` (minus the current pause, if any). A split is the difference between two stamps.
 
@@ -89,6 +89,7 @@ All endpoints are under `/api/`. GET calls take no body; POST calls take and ret
 | `start` | POST | `{"sec": "V", "sets": [3, 0]}`: set indexes in the order to run them |
 | `q`, `pause`, `undo`, `end`, `new` | POST | Session controls (`new` leaves the done screen) |
 | `history` | GET | Every saved session and a version number |
+| `mark` | POST | `{"id": ..., "k": 2, "result": "wrong"}`: marks question `k` of a session `right`, `wrong` or `guess`; `null` clears it. It saves the JSON and CSV and updates the "set done" card's copy |
 | `delete` | POST | `{"ids": [...]}`: removes sessions and rebuilds the CSV |
 | `open-results` | POST | `{"id": ...}`: opens or raises the History window on that session |
 | `poll` | GET | History version, the latest "show this session" request, and the theme (for the History window) |

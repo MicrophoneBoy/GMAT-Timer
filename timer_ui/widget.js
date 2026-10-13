@@ -151,18 +151,32 @@ function drawSplits(isNew) {
 }
 
 // ---------- done ----------
+let doneRec = null;                                                // the finished set; marks are edited here, not on polls
 function enterDone() {
-  const rec = S.rec, t = stats(rec);
+  doneRec = S.rec; const rec = doneRec, t = stats(rec);
   $('#doneTitle').innerHTML = ICON.flag + (rec.complete ? 'Set done' : 'Ended early');
   $('#doneSub').textContent = `${rec.section === 'DI' ? 'DI' : S.secName} · ${setsLabel(rec.sets)} · ${t.n} Q`;
   const g = $('#doneGap'); g.className = 'pill ' + (ahead(t.gap) ? 'good' : 'bad'); g.textContent = fmt(t.gap, true) + ' vs target';
   $('#doneTotal').textContent = fmt(t.total);
-  $('#dAvg').textContent = fmt(t.avg);
-  $('#dWorst').textContent = fmt(t.over, true);
-  $('#dWorst').style.color = t.over > 0 ? 'var(--bad-ink)' : 'var(--good-ink)';
-  $('#dWorstQ').textContent = `worst (Q${t.worst + 1})`;
-  $('#dRed').textContent = t.red;
+  $('#doneStats').innerHTML = `avg <b>${fmt(t.avg)}</b> · worst <b class="${t.over > 0 ? 'bad' : 'good'}">${fmt(t.over, true)}</b> (Q${t.worst + 1}) · <b>${t.red}</b> 30s+ over`;
   requestAnimationFrame(() => sparkline($('#spark'), rec));
+  drawMarks();
+}
+function drawMarks() {
+  const rec = doneRec, t = stats(rec);
+  $('#mlist').innerHTML = rec.questions.map((q, k) => {
+    const d = t.targets[k] - q.sec;
+    return `<li class="s-${cat(q.sec, t.targets[k])}"><span class="qn">Q${k + 1}</span><span class="og">OG ${q.og}</span>
+      <span class="tm">${fmt(q.sec)}</span><span class="dl ${ahead(d) ? 'good' : 'bad'}">${secs(d)}</span>
+      <span class="rb">${Object.entries(RES).map(([r, v]) => `<button class="r-${r}${q.result === r ? ' on' : ''}" data-k="${k}" data-r="${r}" title="${v.title}">${v.icon()}</button>`).join('')}</span></li>`;
+  }).join('');
+  $$('#mlist button').forEach(b => b.onclick = () => {
+    const k = +b.dataset.k, q = rec.questions[k], r = q.result === b.dataset.r ? null : b.dataset.r;
+    if (r) q.result = r; else delete q.result;
+    api('mark', { id: rec.id, k, result: r }); drawMarks();
+  });
+  const sc = score(rec);
+  $('#score').textContent = sc.marked ? [`${sc.right}/${sc.n} right`, sc.wrong && `${sc.wrong} wrong`, sc.guess && `${sc.guess} guess`].filter(Boolean).join(' \u00b7 ') : 'tap \u2713 \u2715 ? for each';
 }
 $('#chartBtn').innerHTML = ICON.chart + 'Open chart';
 $('#chartBtn').onclick = () => S && S.rec && api('open-results', { id: S.rec.id });

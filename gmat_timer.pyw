@@ -94,12 +94,12 @@ def save_hist(h):
         json.dump(h, io.open(HIST, 'w', encoding='utf-8'), indent=1)
         with io.open(CSV, 'w', newline='', encoding='utf-8-sig') as fh:
             w = csv.writer(fh)
-            w.writerow(['date', 'section', 'set', 'q in session', 'OG #', 'type', 'level', 'seconds', 'target', 'vs target (+ = gained)'])
+            w.writerow(['date', 'section', 'set', 'q in session', 'OG #', 'type', 'level', 'seconds', 'target', 'vs target (+ = gained)', 'result'])
             for rec in h:
                 for k, q in enumerate(rec['questions']):
                     t = q.get('target', rec['pace'])
                     w.writerow([rec['date'], SECS[rec['section']][0], q['set'], k + 1, q['og'], q.get('type', qtype(q['og'])), q['level'],
-                                q['sec'], round(t), round(t - q['sec'])])
+                                q['sec'], round(t), round(t - q['sec']), q.get('result', '')])
         VERSION[0] += 1
 
 def load_hist():
@@ -345,6 +345,18 @@ def api(name, body):
     if name == 'delete':
         ids = set(body.get('ids') or [])
         with HLOCK: save_hist([r for r in load_hist() if r['id'] not in ids])
+        return {'ok': True, 'version': VERSION[0]}
+    if name == 'mark':                                           # right / wrong / guess for one question; None clears it
+        rid, k, res = body.get('id'), int(body.get('k', -1)), body.get('result')
+        if res not in ('right', 'wrong', 'guess', None): return {'error': 'bad result'}
+        with HLOCK:
+            h = load_hist()
+            r = next((x for x in h if x['id'] == rid), None)
+            if not r or not 0 <= k < len(r['questions']): return {'error': 'not found'}
+            for q in [r['questions'][k]] + ([s.rec['questions'][k]] if s.rec and s.rec.get('id') == rid else []):
+                if res: q['result'] = res
+                else: q.pop('result', None)
+            save_hist(h)
         return {'ok': True, 'version': VERSION[0]}
     if name == 'open-results':
         threading.Thread(target=open_results, args=(body.get('id'),), daemon=True).start(); return {'ok': True}

@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.2 · 2026-10-13
+
+- **Marks.** Each question can be marked right, wrong or guessed: on the "set done" card (✓ / ✕ / ? buttons), or later under the History chart (click the circle to cycle). A guess counts as a miss.
+- **Score.** History shows a Score tile, and each session in the list shows its score.
+- **Misses tab.** It lists every wrong or guessed question across sessions, with counts by question type. Click one to jump to it in its session's chart.
+- **Data.** `result` is saved per question in the JSON, and the CSV has a new `result` column.
+- **Fixes.**
+  - The "set done" card is reorganised so a 5-question set fits without scrolling.
+  - The sparkline now sizes to its box.
+
 ## 2.1 · 2026-10-13
 
 - **Targets by question type**:
