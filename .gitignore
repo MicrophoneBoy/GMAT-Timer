@@ -1,0 +1,9 @@
+# Python
+__pycache__/
+*.pyc
+
+# Personal data and practice material (kept outside the repo)
+timer_history.json
+Timer History.csv
+og_booklets/
+*.log

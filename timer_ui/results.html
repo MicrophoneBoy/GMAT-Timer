@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GMAT Timer · History</title>
+<link rel="icon" href="icon.svg">
+<link rel="stylesheet" href="ui.css">
+<style>
+  .chart-wrap { position: relative; min-height: 0; margin-top: 10px; }
+  .chart { position: absolute; inset: 0; }
+  #noSel { align-self: stretch; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body class="results">
+<header class="topbar">
+  <img class="light-only" src="icon.svg" width="30" height="30" alt=""><img class="dark-only" src="icon-dark.svg" width="30" height="30" alt="">
+  <div><h1>Timer history</h1><div class="sub" id="sub"></div></div>
+  <div class="grow"></div>
+  <div class="seg" id="filter" style="--n:4">
+    <span class="glider"></span>
+    <button data-f="all" class="on">All</button><button data-f="Q">Quant</button><button data-f="V">Verbal</button><button data-f="DI">DI</button>
+  </div>
+  <button class="icon theme" data-theme-btn></button>
+</header>
+<div class="layout">
+  <aside class="card list">
+    <div class="list-head">
+      <label class="check" title="Select all"><input type="checkbox" id="all"><span></span></label>
+      <span class="grow">Sessions</span>
+      <button class="btn ghost" id="delBtn" disabled></button>
+    </div>
+    <div class="items" id="items"></div>
+  </aside>
+  <main class="detail" id="detail">
+    <div class="dhead">
+      <h2 id="dTitle"></h2><span class="muted" id="dDate"></span><span id="dBadge"></span>
+      <span class="grow"></span>
+      <button class="icon danger" id="delOne" title="Delete this session"></button>
+    </div>
+    <div class="tiles" id="tiles"></div>
+    <div class="card chart-card">
+      <div class="legend" id="legend"></div>
+      <div class="chart-wrap"><div class="chart" id="chart"></div><div class="tip" id="tip"></div></div>
+    </div>
+  </main>
+  <div class="card empty-state" id="noSel" hidden></div>
+</div>
+<div class="modal" id="modal">
+  <div class="card">
+    <h3 id="mTitle"></h3>
+    <div class="muted">They are removed from the history and from Timer History.csv. This can't be undone.</div>
+    <ul id="mList"></ul>
+    <div class="acts"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn danger" id="mOk"></button></div>
+  </div>
+</div>
+<script src="common.js"></script>
+<script src="results.js"></script>
+</body>
+</html>

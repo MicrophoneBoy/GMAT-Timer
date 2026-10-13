@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GMAT Timer</title>
+<link rel="icon" href="icon.svg">
+<link rel="stylesheet" href="ui.css">
+</head>
+<body class="widget">
+<div id="stage">
+
+  <!-- pick a section and sets -->
+  <section class="view" id="setup">
+    <div class="bar">
+      <div class="brand grow"><img class="light-only" src="icon.svg" alt=""><img class="dark-only" src="icon-dark.svg" alt="">GMAT Timer</div>
+      <button class="icon" id="histBtn" title="History and charts"></button>
+      <button class="icon theme" data-theme-btn></button>
+    </div>
+    <div class="seg" id="seg" style="--n:3"></div>
+    <div class="pick-head">
+      <span class="k">Sets</span><span class="muted small grow">tap in order &middot; <i class="dotg"></i> done</span>
+      <button class="link" id="clearBtn">Clear</button>
+    </div>
+    <div class="picker" id="picker"></div>
+    <div class="card sum">
+      <div class="top"><span class="k">Countdown</span><span class="order" id="sumOrder"></span></div>
+      <div class="big num" id="sumTime">0:00</div>
+      <div class="info" id="sumInfo"></div>
+    </div>
+    <div class="go">
+      <button class="btn primary" id="startBtn" title="Press Q each time you finish a question"></button>
+    </div>
+  </section>
+
+  <!-- a set is running -->
+  <section class="view" id="run">
+    <div class="bar">
+      <span class="secchip" id="runSec"><i></i><span></span></span>
+      <span class="setlbl grow" id="runSets"></span>
+      <button class="icon" id="undoBtn" title="Undo the last Q"></button>
+      <button class="icon" id="pauseBtn" title="Pause"></button>
+      <button class="icon danger" id="endBtn" title="End the set"></button>
+    </div>
+    <div class="ring-wrap s-good" id="ring">
+      <svg class="ring" viewBox="0 0 172 172">
+        <circle class="t1" cx="86" cy="86" r="78"/><circle class="p1" id="p1" cx="86" cy="86" r="78"/>
+        <circle class="t2" cx="86" cy="86" r="63"/><circle class="p2" id="p2" cx="86" cy="86" r="63"/>
+      </svg>
+      <div class="ring-center">
+        <div class="k" id="leftLbl">time left</div>
+        <div class="countdown num" id="bigTime">0:00</div>
+        <span class="pill" id="gapPill">+0:00 vs target</span>
+      </div>
+    </div>
+    <div class="card qcard s-good" id="qcard">
+      <div class="qhead"><span class="qnum" id="qNum"></span><span class="tchip" id="qType"></span><span class="grow"></span><span class="qtime num" id="qTime">0:00</span></div>
+      <div class="track" id="track"><div class="fill" id="qFill"></div><i class="y" id="mkY"></i><i class="r" id="mkR"></i></div>
+      <div class="sectors" id="sectors"></div>
+    </div>
+    <ol class="splits" id="splits"></ol>
+    <div class="overlay" id="pausedOv">
+      <div class="card pcard">
+        <div class="pz">Paused</div>
+        <div class="muted" id="pausedInfo"></div>
+        <button class="btn primary" id="resumeBtn"></button>
+        <div class="muted small">Q is off until you resume</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- set finished -->
+  <section class="view" id="done">
+    <div class="bar">
+      <div class="brand grow" id="doneTitle"></div>
+      <button class="icon theme" data-theme-btn></button>
+    </div>
+    <div class="card hero">
+      <div class="top"><span class="k" id="doneSub"></span><span class="pill" id="doneGap"></span></div>
+      <div class="big num" id="doneTotal"></div>
+      <svg class="spark" id="spark"></svg>
+      <div class="stats">
+        <div><b id="dAvg"></b><span>avg / Q</span></div>
+        <div><b id="dWorst"></b><span id="dWorstQ">worst</span></div>
+        <div><b id="dRed"></b><span>30s+ over</span></div>
+      </div>
+    </div>
+    <div class="two">
+      <button class="btn ghost" id="chartBtn"></button>
+      <button class="btn primary" id="newBtn">New set</button>
+    </div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+</div>
+<script src="common.js"></script>
+<script src="widget.js"></script>
+</body>
+</html>
