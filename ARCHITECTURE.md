@@ -93,6 +93,7 @@ All endpoints are under `/api/`. GET calls take no body; POST calls take and ret
 | `history` | GET | Every saved session and a version number |
 | `mark` | POST | `{"id": ..., "k": 2, "result": "wrong"}`: marks question `k` of a session `right`, `wrong` or `guess`; `null` clears it. It saves the JSON and CSV and updates the "set done" card's copy |
 | `delete` | POST | `{"ids": [...]}`: removes sessions and rebuilds the CSV |
+| `save` | POST | `{"id": ..., "k": 2, "saved": true}`: stars question `k`, or the whole session when `k` is left out; `false` removes the star |
 | `open-results` | POST | `{"id": ...}`: opens or raises the History window on that session |
 | `poll` | GET | History version, the latest "show this session" request, and the theme (for the History window) |
 | `settings` | GET/POST | Read or update `settings.json` (theme, last section, window rectangle) |

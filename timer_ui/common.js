@@ -49,6 +49,7 @@ const ICON = {
   book: svg('<path d="M2.5 5.5h6a3.5 3.5 0 0 1 3.5 3.5v11a3 3 0 0 0-3-3H2.5z"/><path d="M21.5 5.5h-6A3.5 3.5 0 0 0 12 9v11a3 3 0 0 1 3-3h6.5z"/>'),
   timer: svg('<circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 2"/><path d="M9.5 2.5h5"/>'),
   check: svg('<path d="m5 12.5 4.5 4.5L19 7.5"/>'),
+  star: svg('<path d="M12 3.6l2.55 5.2 5.7.83-4.13 4.02.98 5.68L12 16.65l-5.1 2.68.98-5.68-4.13-4.02 5.7-.83z"/>'),
   x: svg('<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>'),
   guess: svg('<path d="M9.2 9.2a3 3 0 0 1 5.8 1c0 2-3 2.6-3 4.3"/><circle cx="12" cy="18.2" r=".6" fill="currentColor"/>'),
 };
@@ -150,7 +151,7 @@ function sparkline(el, rec) {
 function bigChart(box, rec, tip, opt = {}) {
   const W = Math.max(320, box.clientWidth), H = Math.max(220, box.clientHeight);
   const qs = rec.questions, n = qs.length, tg = qs.map(q => tgt(rec, q));
-  const L = 50, R = 78, T = rec.sets.length > 1 ? 34 : 18, B = 92, anim = opt.animate !== false;
+  const L = 50, R = 78, T = rec.sets.length > 1 ? 34 : 18, B = 116, anim = opt.animate !== false;
   const maxS = Math.max(...qs.map(q => q.sec), ...tg.map(t => t + TH.redOff + 20));
   const step = maxS > 480 ? 120 : maxS > 260 ? 60 : 30;
   const top = Math.ceil(maxS * 1.1 / step) * step;
@@ -208,10 +209,15 @@ function bigChart(box, rec, tip, opt = {}) {
     s += `<g class="res" data-k="${k}" transform="translate(${px},${cy})"><title>${r ? r.title : 'Not marked'} (click to change)</title>
       <circle r="10" fill="${r ? `var(--${r.tone})` : 'var(--card)'}" stroke="${r ? 'var(--card)' : 'var(--line-2)'}" stroke-width="${r ? 2 : 1.5}"${r ? '' : ' stroke-dasharray="3 3"'}/>
       <text y="4.5" text-anchor="middle" font-size="12" font-weight="800" fill="${r ? '#fff' : 'var(--muted)'}">${r ? r.glyph : ''}</text></g>`;
+    s += `<g class="sv${q.saved ? ' on' : ''}" data-k="${k}" transform="translate(${px - 9},${cy + 15}) scale(.75)"><title>${q.saved ? 'Saved for review (click to unsave)' : 'Save for review'}</title>
+      <rect x="-2" y="-2" width="28" height="28" fill="transparent"/>
+      <path d="M12 3.6l2.55 5.2 5.7.83-4.13 4.02.98 5.68L12 16.65l-5.1 2.68.98-5.68-4.13-4.02 5.7-.83z" stroke-width="1.8" stroke-linejoin="round"
+        fill="${q.saved ? 'var(--sky)' : 'none'}" stroke="${q.saved ? 'var(--sky)' : 'var(--line-2)'}"/></g>`;
   });
   box.innerHTML = `<svg width="${W}" height="${H}">${s}</svg>`;
   if (anim) animateLine(box);
   if (opt.onMark) box.querySelectorAll('.res').forEach(g => g.onclick = () => opt.onMark(+g.dataset.k));
+  if (opt.onSave) box.querySelectorAll('.sv').forEach(g => g.onclick = () => opt.onSave(+g.dataset.k));
   if (!tip) return;
   const vline = box.querySelector('.vline');
   box.querySelectorAll('.hit').forEach(h => {

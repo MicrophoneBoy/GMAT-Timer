@@ -27,21 +27,44 @@ function misses() {
   shown().forEach(r => r.questions.forEach((q, k) => { if (isMiss(q)) out.push({ r, q, k }); }));
   return out;
 }
+function savedQs() {
+  const out = [];
+  shown().forEach(r => r.questions.forEach((q, k) => { if (q.saved) out.push({ r, q, k }); }));
+  return out;
+}
+const sessionItem = r => {
+  const t = stats(r), sc = score(r);
+  return `<div class="item${r.id === sel && selK === null ? ' on' : ''}" data-id="${r.id}">
+      ${tab === 'sessions' ? `<label class="check"><input type="checkbox"${checked.has(r.id) ? ' checked' : ''}><span></span></label>` : `<span class="rbadge sv">${ICON.star}</span>`}
+      <div style="min-width:0"><div class="it-title"><i style="background:var(--sec-${r.section})"></i>${shortSec(r.section)} · ${esc(setsLabel(r.sets))}${r.saved && tab === 'sessions' ? `<span class="star-mini">${ICON.star}</span>` : ''}</div>
+        <div class="it-sub">${when(r.date)} · ${sc.marked ? `${sc.right}/${sc.n} right` : `${t.n} Q`}${r.complete ? '' : ' · partial'}</div></div>
+      <div class="it-right"><b>${fmt(t.total)}</b><span class="pill ${ahead(t.gap) ? 'good' : 'bad'}">${fmt(t.gap, true)}</span></div></div>`;
+};
+const questionItem = ({ r, q, k }, badge) => {
+  const d = tgt(r, q) - q.sec;
+  return `<div class="item${r.id === sel && k === selK ? ' on' : ''}" data-id="${r.id}" data-k="${k}">${badge}
+      <div style="min-width:0"><div class="it-title">OG ${q.og} · ${TSHORT[q.type || qtypeOf(q.og)]}${q.level ? ' · ' + q.level : ''}</div>
+        <div class="it-sub">${shortSec(r.section)} · ${esc(q.set)} · Q${k + 1} · ${when(r.date)}</div></div>
+      <div class="it-right"><b>${fmt(q.sec)}</b><span class="pill ${ahead(d) ? 'good' : 'bad'}">${secs(d)}</span></div></div>`;
+};
+function bindItems() {
+  $$('#items .item').forEach(it => it.onclick = () => {
+    sel = it.dataset.id; selK = it.dataset.k === undefined ? null : +it.dataset.k;
+    $$('#items .item').forEach(x => x.classList.toggle('on', x === it));
+    renderDetail(selK);
+  });
+}
 function renderList() {
-  const ms = misses();
+  const ms = misses(), sq = savedQs(), ss = shown().filter(r => r.saved);
   $('#missN').textContent = ms.length || '';
+  $('#savedN').textContent = sq.length + ss.length || '';
   $('#allWrap').hidden = $('#delBtn').hidden = tab !== 'sessions';
   $('#missSum').hidden = tab !== 'misses' || !ms.length;
   if (tab === 'misses') return renderMisses(ms);
+  if (tab === 'saved') return renderSaved(ss, sq);
   const list = shown();
-  $('#items').innerHTML = list.length ? list.map(r => {
-    const t = stats(r), sc = score(r);
-    return `<div class="item${r.id === sel ? ' on' : ''}" data-id="${r.id}">
-      <label class="check"><input type="checkbox"${checked.has(r.id) ? ' checked' : ''}><span></span></label>
-      <div style="min-width:0"><div class="it-title"><i style="background:var(--sec-${r.section})"></i>${SECNAME[r.section] === 'Data Insights' ? 'DI' : SECNAME[r.section]} · ${esc(setsLabel(r.sets))}</div>
-        <div class="it-sub">${when(r.date)} · ${sc.marked ? `${sc.right}/${sc.n} right` : `${t.n} Q`}${r.complete ? '' : ' · partial'}</div></div>
-      <div class="it-right"><b>${fmt(t.total)}</b><span class="pill ${ahead(t.gap) ? 'good' : 'bad'}">${fmt(t.gap, true)}</span></div></div>`;
-  }).join('') : `<div class="empty-state">${ICON.timer}<b>No sessions here yet</b><span>Finish a set in the timer and it shows up here.</span></div>`;
+  $('#items').innerHTML = list.length ? list.map(sessionItem).join('')
+    : `<div class="empty-state">${ICON.timer}<b>No sessions here yet</b><span>Finish a set in the timer and it shows up here.</span></div>`;
   $$('#items .item').forEach(it => {
     const id = it.dataset.id, box = it.querySelector('input');
     box.onclick = e => { e.stopPropagation(); box.checked ? checked.add(id) : checked.delete(id); updDel(); };
@@ -56,19 +79,17 @@ function renderMisses(ms) {
   ms.forEach(m => { const ty = m.q.type || qtypeOf(m.q.og); byType[ty] = (byType[ty] || 0) + 1; });
   $('#missSum').innerHTML = `<span><b>${wrong}</b> wrong</span><span><b>${ms.length - wrong}</b> guessed</span>`
     + Object.entries(byType).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<span class="chip">${TSHORT[k]} ${v}</span>`).join('');
-  $('#items').innerHTML = ms.length ? ms.map(({ r, q, k }) => {
-    const d = tgt(r, q) - q.sec, res = RES[q.result];
-    return `<div class="item${r.id === sel && k === selK ? ' on' : ''}" data-id="${r.id}" data-k="${k}">
-      <span class="rbadge" style="background:var(--${res.tone})" title="${res.title}">${res.icon()}</span>
-      <div style="min-width:0"><div class="it-title">OG ${q.og} · ${TSHORT[q.type || qtypeOf(q.og)]}${q.level ? ' · ' + q.level : ''}</div>
-        <div class="it-sub">${shortSec(r.section)} · ${esc(q.set)} · Q${k + 1} · ${when(r.date)}</div></div>
-      <div class="it-right"><b>${fmt(q.sec)}</b><span class="pill ${ahead(d) ? 'good' : 'bad'}">${secs(d)}</span></div></div>`;
-  }).join('') : `<div class="empty-state">${ICON.check}<b>No misses marked yet</b><span>Mark questions \u2713 \u2715 ? on the set-done card or under the chart. Wrong and guessed ones collect here.</span></div>`;
-  $$('#items .item').forEach(it => it.onclick = () => {
-    sel = it.dataset.id; selK = +it.dataset.k;
-    $$('#items .item').forEach(x => x.classList.toggle('on', x === it));
-    renderDetail(selK);
-  });
+  $('#items').innerHTML = ms.length ? ms.map(m => questionItem(m, `<span class="rbadge" style="background:var(--${RES[m.q.result].tone})" title="${RES[m.q.result].title}">${RES[m.q.result].icon()}</span>`)).join('')
+    : `<div class="empty-state">${ICON.check}<b>No misses marked yet</b><span>Mark questions \u2713 \u2715 ? on the set-done card or under the chart. Wrong and guessed ones collect here.</span></div>`;
+  bindItems();
+}
+function renderSaved(ss, sq) {
+  const head = t => `<div class="group">${t}</div>`;
+  $('#items').innerHTML = ss.length + sq.length
+    ? (ss.length ? head('Sets') + ss.map(sessionItem).join('') : '')
+      + (sq.length ? head('Questions') + sq.map(m => questionItem(m, `<span class="rbadge sv">${ICON.star}</span>`)).join('') : '')
+    : `<div class="empty-state">${ICON.star}<b>Nothing saved yet</b><span>Tap \u2606 on a question or a set (on the set-done card, or under the chart and next to the set's title here) to keep it for review.</span></div>`;
+  bindItems();
 }
 $$('#tabs button').forEach(b => b.onclick = () => {
   tab = b.dataset.tab; $$('#tabs button').forEach(x => x.classList.toggle('on', x === b)); selK = null; renderList();
@@ -94,6 +115,8 @@ function renderDetail(focusK = null, still = false) {
   $('#dTitle').innerHTML = `<i style="background:var(--sec-${r.section})"></i>${SECNAME[r.section]} · ${esc(setsLabel(r.sets))}`;
   $('#dDate').textContent = when(r.date);
   $('#dBadge').innerHTML = r.complete ? '' : '<span class="badge">ended early</span>';
+  $('#saveOne').classList.toggle('on', !!r.saved);
+  $('#saveOne').title = r.saved ? 'Set saved for review (click to unsave)' : 'Save this set for review';
   const tile = (cls, big, small) => `<div class="card tile ${cls}"><span class="k">${small[0]}</span><b>${big}</b><small>${small[1]}</small></div>`;
   $('#tiles').innerHTML = [
     tile('', fmt(t.total), ['Total time', `${t.n} questions`]),
@@ -110,13 +133,25 @@ function renderDetail(focusK = null, still = false) {
     <span><i style="background:var(--bad-soft);border:1px solid var(--bad)"></i>30s+ over</span>
     <span><em class="lv E">E</em><em class="lv M">M</em><em class="lv H">H</em> difficulty (easy, medium, hard)</span>
     ${read ? '<span><b style="color:var(--ink)">&bull; OG</b> first question of a passage (target includes reading)</span>' : ''}
-    <span><b style="color:var(--ink)">\u2713 \u2715 ?</b> click the circles to mark right, wrong, guessed</span>`;
+    <span><b style="color:var(--ink)">\u2713 \u2715 ?</b> click the circles to mark right, wrong, guessed</span>
+    <span><b style="color:var(--sky)">\u2606</b> click to save a question for review</span>`;
   requestAnimationFrame(() => {
     drawChart(r, !still);
     if (focusK !== null) $(`#chart .hit[data-k="${focusK}"]`)?.dispatchEvent(new MouseEvent('mouseenter'));
   });
 }
-const drawChart = (r, animate) => bigChart($('#chart'), r, $('#tip'), { animate, onMark: k => mark(r, k) });
+const drawChart = (r, animate) => bigChart($('#chart'), r, $('#tip'), { animate, onMark: k => mark(r, k), onSave: k => toggleSave(r, k) });
+async function toggleSave(r, k) {                                   // k = question index, or null for the whole set
+  const o = k === null ? r : r.questions[k], on = !o.saved;
+  if (on) o.saved = true; else delete o.saved;
+  marking++; renderList(); renderDetail(null, true);
+  try {
+    const d = await api('save', { id: r.id, k, saved: on });
+    if (d.version) ver = d.version; else await load();
+  } catch (e) { await load(); } finally { marking--; }
+}
+$('#saveOne').innerHTML = ICON.star;
+$('#saveOne').onclick = () => { const r = byId(sel); if (r) toggleSave(r, null); };
 async function mark(r, k) {                                         // cycle: unmarked, right, wrong, guessed
   const q = r.questions[k], nr = NEXT_RES[q.result];
   if (nr) q.result = nr; else delete q.result;

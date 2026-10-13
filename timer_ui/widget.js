@@ -168,9 +168,13 @@ function drawMarks() {
     const d = t.targets[k] - q.sec;
     return `<li class="s-${cat(q.sec, t.targets[k])}"><span class="qn">Q${k + 1}</span><span class="og">OG ${q.og}</span>
       <span class="tm">${fmt(q.sec)}</span><span class="dl ${ahead(d) ? 'good' : 'bad'}">${secs(d)}</span>
-      <span class="rb">${Object.entries(RES).map(([r, v]) => `<button class="r-${r}${q.result === r ? ' on' : ''}" data-k="${k}" data-r="${r}" title="${v.title}">${v.icon()}</button>`).join('')}</span></li>`;
+      <span class="rb">${Object.entries(RES).map(([r, v]) => `<button class="r-${r}${q.result === r ? ' on' : ''}" data-k="${k}" data-r="${r}" title="${v.title}">${v.icon()}</button>`).join('')}
+        <button class="sv${q.saved ? ' on' : ''}" data-k="${k}" title="${q.saved ? 'Saved for review' : 'Save for review'}">${ICON.star}</button></span></li>`;
   }).join('');
-  $$('#mlist button').forEach(b => b.onclick = () => {
+  $$('#mlist .sv').forEach(b => b.onclick = () => saveIt(+b.dataset.k));
+  $('#saveSet').classList.toggle('on', !!rec.saved);
+  $('#saveSet').title = rec.saved ? 'Set saved for review (click to unsave)' : 'Save this set for review';
+  $$('#mlist button[data-r]').forEach(b => b.onclick = () => {
     const k = +b.dataset.k, q = rec.questions[k], r = q.result === b.dataset.r ? null : b.dataset.r;
     if (r) q.result = r; else delete q.result;
     api('mark', { id: rec.id, k, result: r }).then(d => { if (!d.ok) toast('Mark not saved'); }, () => toast('Mark not saved'));
@@ -179,6 +183,15 @@ function drawMarks() {
   const sc = score(rec);
   $('#score').textContent = sc.marked ? [`${sc.right}/${sc.n} right`, sc.wrong && `${sc.wrong} wrong`, sc.guess && `${sc.guess} guess`].filter(Boolean).join(' \u00b7 ') : 'tap \u2713 \u2715 ? for each';
 }
+function saveIt(k) {                                               // k = question index, or null for the whole set
+  const rec = doneRec, o = k === null ? rec : rec.questions[k], on = !o.saved;
+  if (on) o.saved = true; else delete o.saved;
+  api('save', { id: rec.id, k, saved: on }).then(d => { if (!d.ok) toast('Not saved'); }, () => toast('Not saved'));
+  if (k === null) toast(on ? 'Set saved for review' : 'Set unsaved', 1500);
+  drawMarks();
+}
+$('#saveSet').innerHTML = ICON.star;
+$('#saveSet').onclick = () => doneRec && saveIt(null);
 $('#chartBtn').innerHTML = ICON.chart + 'Open chart';
 $('#chartBtn').onclick = () => S && S.rec && api('open-results', { id: S.rec.id });
 $('#newBtn').onclick = () => act('new');

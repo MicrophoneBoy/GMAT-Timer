@@ -12,6 +12,10 @@ The Misses tab lists every question marked wrong or guessed, across all sessions
 
 ![Misses tab](docs/screenshots/history-misses.png)
 
+The Saved tab keeps the sets and questions you starred for review:
+
+![Saved tab](docs/screenshots/history-saved.png)
+
 Dark mode is black with purple highlights:
 
 | Running (dark) | History (dark) |
@@ -37,12 +41,15 @@ Dark mode is black with purple highlights:
   - It shows the total, the gap to target, a sparkline, the average per question, the worst question and the count of 30s+ overruns.
   - Below that is a row per question with ✓ / ✕ / ? buttons to mark it right, wrong or guessed. A guess counts as a miss, because a lucky right answer is not a skill yet.
   - Marks save as you tap; tap a button again to clear it.
+  - **☆ Save** bookmarks a question (the star at the end of its row) or the whole set (the star at the top) for review. It is separate from the marks: save anything worth another look, right or wrong.
 - **History window.** It opens by itself when a set finishes.
   - Filter by section, and see tiles for total, vs target, average, worst and 30s+ over.
   - A smooth line chart has a zone for each question (yellow near target, red 30s+ over), a dashed step line of the targets, and `+Ns` / `−Ns` labels.
   - The OG number and difficulty sit under each point (E green, M yellow, H red). Hover any point for details.
   - Delete sessions with checkboxes, the trash button or the Delete key, with a confirm dialog. Arrow keys move through sessions.
   - **Marks.** A Score tile shows something like "7/10, 2 wrong · 1 guessed". Under the chart, a circle for each question shows its mark; click a circle to cycle right, wrong, guessed and unmarked, so you can mark a set later.
+  - **Saving later.** Star a question under the chart, or the set with the ☆ button next to its title.
+  - **Saved tab.** It shows the saved sets first, then the saved questions; click one to open it.
   - **Misses tab (mistake log).** It lists every question marked wrong or guessed, in the current section filter, with counts by question type.
     - Each row shows the OG number, type, level, set, time and gap to target.
     - Click one to open its session with that question highlighted.
@@ -134,11 +141,12 @@ Both files live in the `--data` folder.
 - `read` marks the first question of an RC passage.
 - `complete` is false when a set was ended early, or when the window was closed mid-set.
 - `result` is `right`, `wrong` or `guess` once a question is marked; it is missing until then.
+- `saved: true` on a question or on the session means it was starred for review.
 - Sessions saved before type targets existed have no `type` or `target`. They are charted against `pace`.
 
 **`Timer History.csv`** has one row per question, for spreadsheets. It is rebuilt from the JSON on every save, so deleting a session removes it from both. The columns are:
 
-`date, section, set, q in session, OG #, type, level, seconds, target, vs target (+ = gained), result`
+`date, section, set, q in session, OG #, type, level, seconds, target, vs target (+ = gained), result, saved, set saved`
 
 ## Customize
 

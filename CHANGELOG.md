@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.4 · 2026-10-13
+
+- **☆ Save for review.** Star any question or a whole set, separately from right / wrong / guessed marks.
+  - On the "set done" card: a star at the end of each question row, and one at the top for the set.
+  - In History: stars under the chart, and a star button next to the set's title.
+- **Saved tab.** History lists saved sets and saved questions; click one to open it.
+- **Data.** `saved` is stored on questions and sessions, and the CSV has new `saved` and `set saved` columns.
+
 ## 2.3 · 2026-10-13
 
 - **On top only during a set.** The widget stays on top only while a set is running (paused included). Between sets it is a normal window, so it no longer covers the History chart.

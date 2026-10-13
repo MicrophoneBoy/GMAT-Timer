@@ -27,7 +27,7 @@
 <div class="layout">
   <aside class="card list">
     <div class="list-head">
-      <div class="tabs" id="tabs"><button data-tab="sessions" class="on">Sessions</button><button data-tab="misses">Misses<span class="cnt" id="missN"></span></button></div>
+      <div class="tabs" id="tabs"><button data-tab="sessions" class="on">Sessions</button><button data-tab="misses">Misses<span class="cnt" id="missN"></span></button><button data-tab="saved">Saved<span class="cnt sv" id="savedN"></span></button></div>
       <span class="grow"></span>
       <label class="check" title="Select all" id="allWrap"><input type="checkbox" id="all"><span></span></label>
       <button class="btn ghost" id="delBtn" disabled></button>
@@ -39,6 +39,7 @@
     <div class="dhead">
       <h2 id="dTitle"></h2><span class="muted" id="dDate"></span><span id="dBadge"></span>
       <span class="grow"></span>
+      <button class="icon star" id="saveOne" title="Save this set for review"></button>
       <button class="icon danger" id="delOne" title="Delete this session"></button>
     </div>
     <div class="tiles" id="tiles"></div>

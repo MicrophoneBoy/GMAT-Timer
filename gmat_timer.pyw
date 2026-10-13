@@ -94,12 +94,14 @@ def save_hist(h):
         json.dump(h, io.open(HIST, 'w', encoding='utf-8'), indent=1)
         with io.open(CSV, 'w', newline='', encoding='utf-8-sig') as fh:
             w = csv.writer(fh)
-            w.writerow(['date', 'section', 'set', 'q in session', 'OG #', 'type', 'level', 'seconds', 'target', 'vs target (+ = gained)', 'result'])
+            w.writerow(['date', 'section', 'set', 'q in session', 'OG #', 'type', 'level', 'seconds', 'target', 'vs target (+ = gained)', 'result',
+                        'saved', 'set saved'])
             for rec in h:
                 for k, q in enumerate(rec['questions']):
                     t = q.get('target', rec['pace'])
                     w.writerow([rec['date'], SECS[rec['section']][0], q['set'], k + 1, q['og'], q.get('type', qtype(q['og'])), q['level'],
-                                q['sec'], round(t), round(t - q['sec']), q.get('result', '')])
+                                q['sec'], round(t), round(t - q['sec']), q.get('result', ''), 'yes' if q.get('saved') else '',
+                                'yes' if rec.get('saved') else ''])
         VERSION[0] += 1
 
 def load_hist():
@@ -356,6 +358,19 @@ def api(name, body):
             for q in [r['questions'][k]] + ([s.rec['questions'][k]] if s.rec and s.rec.get('id') == rid else []):
                 if res: q['result'] = res
                 else: q.pop('result', None)
+            save_hist(h)
+        return {'ok': True, 'version': VERSION[0]}
+    if name == 'save':                                           # bookmark a whole session (no k) or one question (k)
+        rid, k, on = body.get('id'), body.get('k'), bool(body.get('saved'))
+        with HLOCK:
+            h = load_hist()
+            r = next((x for x in h if x['id'] == rid), None)
+            if not r or (k is not None and not 0 <= int(k) < len(r['questions'])): return {'error': 'not found'}
+            mine = s.rec if s.rec and s.rec.get('id') == rid else None
+            objs = [r, mine] if k is None else [r['questions'][int(k)], mine and mine['questions'][int(k)]]
+            for o in filter(None, objs):
+                if on: o['saved'] = True
+                else: o.pop('saved', None)
             save_hist(h)
         return {'ok': True, 'version': VERSION[0]}
     if name == 'open-results':
