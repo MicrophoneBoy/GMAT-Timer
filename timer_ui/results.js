@@ -121,7 +121,10 @@ async function mark(r, k) {                                         // cycle: un
   const q = r.questions[k], nr = NEXT_RES[q.result];
   if (nr) q.result = nr; else delete q.result;
   marking++; renderList(); renderDetail(null, true);
-  try { const d = await api('mark', { id: r.id, k, result: nr || null }); if (d.version) ver = d.version; } finally { marking--; }
+  try {
+    const d = await api('mark', { id: r.id, k, result: nr || null });
+    if (d.version) ver = d.version; else await load();               // not saved: show what is really stored
+  } catch (e) { await load(); } finally { marking--; }
 }
 
 let rz = 0;

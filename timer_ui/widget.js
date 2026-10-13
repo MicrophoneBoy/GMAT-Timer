@@ -173,7 +173,8 @@ function drawMarks() {
   $$('#mlist button').forEach(b => b.onclick = () => {
     const k = +b.dataset.k, q = rec.questions[k], r = q.result === b.dataset.r ? null : b.dataset.r;
     if (r) q.result = r; else delete q.result;
-    api('mark', { id: rec.id, k, result: r }); drawMarks();
+    api('mark', { id: rec.id, k, result: r }).then(d => { if (!d.ok) toast('Mark not saved'); }, () => toast('Mark not saved'));
+    drawMarks();
   });
   const sc = score(rec);
   $('#score').textContent = sc.marked ? [`${sc.right}/${sc.n} right`, sc.wrong && `${sc.wrong} wrong`, sc.guess && `${sc.guess} guess`].filter(Boolean).join(' \u00b7 ') : 'tap \u2713 \u2715 ? for each';
