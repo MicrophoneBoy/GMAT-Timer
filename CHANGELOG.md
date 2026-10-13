@@ -3,6 +3,7 @@
 ## 2.3 · 2026-10-13
 
 - **On top only during a set.** The widget stays on top only while a set is running (paused included). Between sets it is a normal window, so it no longer covers the History chart.
+- **Nothing pre-selected.** The set grid opens with nothing picked (it still scrolls to the first set not yet done).
 - **Difficulty colours.** The chips under the chart and in the legend are green for Easy, yellow for Medium and red for Hard.
 
 ## 2.2 · 2026-10-13

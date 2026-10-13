@@ -25,7 +25,7 @@ function pickSec(k) {
   sec = k; const s = INIT.sections[k];
   $('#seg').style.setProperty('--i', Object.keys(INIT.sections).indexOf(k));
   $$('#seg button').forEach(b => b.classList.toggle('on', b.dataset.sec === k));
-  picked = s.sets.length ? [s.next] : [];
+  picked = [];                                                      // nothing pre-selected; the grid scrolls to the next undone set
   if (!s.sets.length) {
     $('#picker').innerHTML = `<div class="missing">Booklet not found:<br><b>${esc(s.missing || '')}</b></div>`;
     return summary();
