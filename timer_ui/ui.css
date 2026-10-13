@@ -19,7 +19,7 @@
   --warn: #f59e0b; --warn-ink: #c47a03; --warn-soft: #fdf1d2; --warn-glow: rgba(245, 158, 11, .45);
   --bad: #ef4444;  --bad-ink: #d92626;  --bad-soft: #fde5e5;  --bad-glow: rgba(239, 68, 68, .45);
   --sec-Q: #0ea5e9; --sec-V: #8b5cf6; --sec-DI: #14b8a6;
-  --lv-E-bg: #e3f3fe; --lv-E-fg: #0369a1; --lv-M-bg: #bae6fd; --lv-M-fg: #075985; --lv-H-bg: #0369a1; --lv-H-fg: #ffffff;
+  --lv-E-bg: var(--good-soft); --lv-E-fg: var(--good-ink); --lv-M-bg: var(--warn-soft); --lv-M-fg: var(--warn-ink); --lv-H-bg: var(--bad-soft); --lv-H-fg: var(--bad-ink);
   --shadow-sm: 0 1px 2px rgba(3, 105, 161, .06), 0 2px 6px rgba(3, 105, 161, .05);
   --shadow: 0 1px 2px rgba(3, 105, 161, .05), 0 12px 28px -10px rgba(3, 105, 161, .22);
   --font: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
@@ -47,7 +47,6 @@
   --warn-ink: #fbbf24; --warn-soft: rgba(245, 158, 11, .15);
   --bad-ink: #f87171;  --bad-soft: rgba(239, 68, 68, .16);
   --sec-Q: #818cf8; --sec-V: #e879f9; --sec-DI: #2dd4bf;
-  --lv-E-bg: #1f1430; --lv-E-fg: #d8b4fe; --lv-M-bg: #4c1d95; --lv-M-fg: #ede9fe; --lv-H-bg: #c084fc; --lv-H-fg: #0b0b0f;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, .5);
   --shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 14px 30px -12px rgba(0, 0, 0, .8);
   color-scheme: dark;
@@ -419,6 +418,10 @@ body.results { display: grid; grid-template-rows: auto 1fr; height: 100vh; }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .legend i { width: 14px; height: 9px; border-radius: 3px; display: inline-block; }
 .legend svg { width: 13px; height: 13px; color: var(--sky-deep); }
+.legend .lv { display: inline-grid; place-items: center; width: 17px; height: 15px; border-radius: 5px; font: 700 10px var(--font); font-style: normal; margin-right: -2px; }
+.lv.E { background: var(--lv-E-bg); color: var(--lv-E-fg); }
+.lv.M { background: var(--lv-M-bg); color: var(--lv-M-fg); }
+.lv.H { background: var(--lv-H-bg); color: var(--lv-H-fg); }
 .chart { position: relative; min-height: 0; }
 .chart svg { display: block; overflow: visible; }
 .chart .hit { fill: transparent; cursor: crosshair; }

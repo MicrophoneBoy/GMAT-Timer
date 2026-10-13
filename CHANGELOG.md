@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3 · 2026-10-13
+
+- **On top only during a set.** The widget stays on top only while a set is running (paused included). Between sets it is a normal window, so it no longer covers the History chart.
+- **Difficulty colours.** The chips under the chart and in the legend are green for Easy, yellow for Medium and red for Hard.
+
 ## 2.2 · 2026-10-13
 
 - **Marks.** Each question can be marked right, wrong or guessed: on the "set done" card (✓ / ✕ / ? buttons), or later under the History chart (click the circle to cycle). A guess counts as a miss.

@@ -108,7 +108,7 @@ function renderDetail(focusK = null, still = false) {
     <span><i style="height:0;border-top:2px dashed var(--sky-deep);border-radius:0"></i>target (by question type)</span>
     <span><i style="background:var(--warn-soft);border:1px solid var(--warn)"></i>20s under to 30s over</span>
     <span><i style="background:var(--bad-soft);border:1px solid var(--bad)"></i>30s+ over</span>
-    <span><b style="color:var(--ink)">E M H</b> difficulty</span>
+    <span><em class="lv E">E</em><em class="lv M">M</em><em class="lv H">H</em> difficulty (easy, medium, hard)</span>
     ${read ? '<span><b style="color:var(--ink)">&bull; OG</b> first question of a passage (target includes reading)</span>' : ''}
     <span><b style="color:var(--ink)">\u2713 \u2715 ?</b> click the circles to mark right, wrong, guessed</span>`;
   requestAnimationFrame(() => {

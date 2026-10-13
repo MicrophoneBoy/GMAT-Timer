@@ -9,7 +9,7 @@ pythonw gmat_timer.pyw
  ├─ Session: the clock, the splits and the targets (one at a time, under a lock)
  ├─ Hotkey thread: Win32 RegisterHotKey for Q, only while a set runs
  └─ Window watcher (main thread)
-      launches Edge as an app window, keeps it always on top,
+      launches Edge as an app window, keeps it on top while a set runs,
       remembers its position and size, and shuts everything down when it closes
 
 Edge app window "GMAT Timer"            Edge app window "GMAT Timer · History"
@@ -25,7 +25,9 @@ The UI is HTML and CSS: soft shadows, gradients, blur, smooth SVG charts and ani
 
 - **Its own data folder.** Edge runs with its own `--user-data-dir` (`%LOCALAPPDATA%\GMATTimer\edge-guest`), so it is a separate process from your everyday Edge.
 - **Guest mode (`--guest`).** A brand-new Edge profile signs itself into the Windows Microsoft account and shows a "signed in on this device" dialog. Guest mode avoids that: no sign-in, no sync, and nothing kept between runs. Guest windows add ` - [Guest]` to their title, and the window finder accepts that suffix.
-- **Always on top.** Python finds the window by its title and calls `SetWindowPos(HWND_TOPMOST)`. The watcher re-applies it every 0.4 s in case anything clears it.
+- **On top only during a set.** Python finds the window by its title.
+  - Every 0.4 s the watcher sets `HWND_TOPMOST` while a set is running (paused included) and `HWND_NOTOPMOST` otherwise.
+  - So the widget floats over the booklet while you work, and never covers the History window or anything else between sets.
 - **Size and position.** These are set by Python in physical pixels. Edge's own `--window-size` uses device-independent pixels, which change with Windows display scaling and text size.
   - The first time, the widget opens on the right edge, about 19% of the screen wide.
   - After that, the last position and size are reused.

@@ -1,6 +1,6 @@
 # GMAT Timer
 
-A floating, always-on-top timer for timed GMAT practice sets. Pick the sets you are about to do, press **Q** after each question, and it times every question against a target for its type. When the set ends, mark each question right, wrong or guessed. Every session is saved: the History window charts it question by question and collects every miss in one list, so it doubles as a mistake log.
+A floating timer for timed GMAT practice sets that stays on top of your other windows while a set runs. Pick the sets you are about to do, press **Q** after each question, and it times every question against a target for its type. When the set ends, mark each question right, wrong or guessed. Every session is saved: the History window charts it question by question and collects every miss in one list, so it doubles as a mistake log.
 
 | Pick sets | Running | Set done |
 |---|---|---|
@@ -40,7 +40,7 @@ Dark mode is black with purple highlights:
 - **History window.** It opens by itself when a set finishes.
   - Filter by section, and see tiles for total, vs target, average, worst and 30s+ over.
   - A smooth line chart has a zone for each question (yellow near target, red 30s+ over), a dashed step line of the targets, and `+Ns` / `−Ns` labels.
-  - The OG number and difficulty (E, M, H) sit under each point. Hover any point for details.
+  - The OG number and difficulty sit under each point (E green, M yellow, H red). Hover any point for details.
   - Delete sessions with checkboxes, the trash button or the Delete key, with a confirm dialog. Arrow keys move through sessions.
   - **Marks.** A Score tile shows something like "7/10, 2 wrong · 1 guessed". Under the chart, a circle for each question shows its mark; click a circle to cycle right, wrong, guessed and unmarked, so you can mark a set later.
   - **Misses tab (mistake log).** It lists every question marked wrong or guessed, in the current section filter, with counts by question type.

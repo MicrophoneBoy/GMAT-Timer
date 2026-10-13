@@ -1,6 +1,6 @@
-"""GMAT Timer: a floating, always-on-top set timer for GMAT practice booklets.
+"""GMAT Timer: a floating set timer for GMAT practice booklets that stays on top while a set runs.
    Python keeps the clock, the global Q hotkey and the history, and serves the look (HTML/CSS/JS in timer_ui/) to an
-   Edge app window that it keeps always on top.
+   Edge app window. The widget is kept on top only while a set is running, so it never covers the History chart.
    Usage: pythonw gmat_timer.pyw [--data DIR] [--booklets DIR]
      --data      folder for timer_history.json and Timer History.csv (default: this script's folder)
      --booklets  folder with the booklet files Q.html, DI.html, V.html (default: DATA/og_booklets)
@@ -363,7 +363,7 @@ def api(name, body):
     if name == 'poll': return {'version': VERSION[0], 'focus': FOCUS, 'theme': settings().get('theme', 'light')}
     if name == 'settings': return settings(body or None)
     if name == 'focus':
-        if WIDGET[0]: raise_window(WIDGET[0]); user32.SetWindowPos(WIDGET[0], TOPMOST, 0, 0, 0, 0, NOSIZE | NOMOVE)
+        if WIDGET[0]: raise_window(WIDGET[0])
         return {'ok': True}
     return None
 
@@ -416,7 +416,7 @@ def place_widget(h):
         hh = int(w * BASE_H / BASE_W) + (o[3] - o[1]) - (c[3] - c[1])
         x0 = wa.right - w - int(W * 0.015); y0 = wa.top + max(10, (wa.bottom - wa.top - hh) // 2)
         x1, y1 = x0 + w, y0 + hh
-    user32.SetWindowPos(h, TOPMOST, x0, y0, x1 - x0, y1 - y0, 0)
+    user32.SetWindowPos(h, None, x0, y0, x1 - x0, y1 - y0, NOZORDER)
 
 def close_edge(pid):
     for h, t, p in top_windows():
@@ -444,7 +444,9 @@ def main():
     last, same = None, 0
     while user32.IsWindow(h):
         time.sleep(0.4)
-        if not user32.GetWindowLongW(h, -20) & 0x8: user32.SetWindowPos(h, TOPMOST, 0, 0, 0, 0, NOSIZE | NOMOVE | NOACTIVATE)
+        want = SESSION.state == 'run'                             # on top only during a set (paused included)
+        if want != bool(user32.GetWindowLongW(h, -20) & 0x8):
+            user32.SetWindowPos(h, TOPMOST if want else NOTOPMOST, 0, 0, 0, 0, NOSIZE | NOMOVE | NOACTIVATE)
         if user32.IsIconic(h) or user32.IsZoomed(h): continue
         rc = rect(h)
         if rc != last: last, same = rc, 0
